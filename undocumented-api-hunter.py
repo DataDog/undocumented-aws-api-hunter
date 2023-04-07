@@ -17,7 +17,14 @@ def main(args):
     # In case this is a single query
     if args.single:
         js_content = aws_connector.fetch_service_model(args.single)
-        aws_connector.parse_service_model(js_content, args.single, MODEL_DIR)
+        aws_connector.parse_service_model(js_content, args.single, True, MODEL_DIR)
+        exit()
+    elif args.dcount:
+        print(args.dcount)
+        exit()
+    elif args.extract:
+        js_content = aws_connector.fetch_service_model(args.extract)
+        aws_connector.parse_service_model(js_content, args.extract, False, MODEL_DIR)
         exit()
 
     driver = selenium_driver.create_driver(args)
@@ -43,7 +50,7 @@ def main(args):
                 if js_content is None:
                     continue
 
-                aws_connector.parse_service_model(js_content, script, MODEL_DIR)
+                aws_connector.parse_service_model(js_content, script, True, MODEL_DIR)
                 queried_javascript.add(script)
     
     with open("./endpoints.txt", 'w') as w:
@@ -65,7 +72,7 @@ def mark_download_location(parsed, download_location):
     return parsed
 
 
-def initialize():
+def initialize(args):
     # Check for a local models directory
     if not os.path.isdir(MODEL_DIR):
         os.mkdir(MODEL_DIR)
@@ -73,7 +80,7 @@ def initialize():
     # Check needed environment variables
     env_vars = ["UAH_ACCOUNT_ID", "UAH_USERNAME", "UAH_PASSWORD"]
     for env_var in env_vars:
-        if env_var not in os.environ:
+        if env_var not in os.environ and not args.extract:
             print(f"[!] Mising environment variable: {env_var}")
             print(f"[-] Terminating")
             exit()
@@ -105,9 +112,13 @@ if __name__ == "__main__":
                         help="Do not open a visible chrome window. Headless mode. (Default: False)")
     parser.add_argument('--single', dest='single', action='store', type=str,
                         help="Parses a single URL for its models.")
+    parser.add_argument('--dcount', dest='dcount', action='store', type=int,
+                        help="Displays all operations for a model with x number of download locations")
+    parser.add_argument('--extract', dest='extract', action='store', type=str,
+                        help="Extract all service models from a given URL.")
 
     args = parser.parse_args()
 
-    initialize()
+    initialize(args)
 
     main(args)

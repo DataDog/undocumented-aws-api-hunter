@@ -1,6 +1,6 @@
 import requests, logging, re, json, os
 
-def parse_service_model(js_content, download_location, MODEL_DIR):
+def parse_service_model(js_content, download_location, save, MODEL_DIR):
     match = re.findall("({\"version\":\"[\.0-9]*?\",.*?'\))", js_content)
     if len(match) == 0:
         return
@@ -23,8 +23,11 @@ def parse_service_model(js_content, download_location, MODEL_DIR):
             logging.info(f"[-] No UID found - {parsed_model['metadata']['serviceFullName']}")
             continue
         
+        if not save:
+            # Just print it
+            print(json.dumps(parsed_model, indent=4))
         # Need to determine if we have this file already
-        if os.path.exists(f"{MODEL_DIR}/{parsed_model['metadata']['uid']}.json"):
+        elif os.path.exists(f"{MODEL_DIR}/{parsed_model['metadata']['uid']}.json"):
             # Integrate
             # TODO: there are some with alternative serviceFullNames and perhaps other info
             # Need to explore if there is enough of them to have special handling here.

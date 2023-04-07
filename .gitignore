@@ -4,3 +4,7 @@ reset.py
 logs
 output.log
 __pycache__
+botocore
+endpoints.txt
+compare_output.md
+temp
