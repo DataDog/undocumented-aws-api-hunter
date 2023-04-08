@@ -1,26 +1,40 @@
 import requests, logging, re, json, os
 
 def parse_service_model(js_content, download_location, save, MODEL_DIR):
-    match = re.findall("({\"version\":\"[\.0-9]*?\",.*?'\))", js_content)
-    if len(match) == 0:
+    match1 = re.findall("(parse\('{\"version\":\"[\.0-9]*?\",.*?'\))", js_content)
+    match2 = re.findall("(parse\('{\"metadata\":{\".*?'\))", js_content)
+    matches = match1 + match2
+
+    if len(matches) == 0:
         return
 
-    for model in match:
+    for model in matches:
         # This is necessary to remove 2 trailing characters
         # and to replace some invalid JSON caracters
         try:
-            parsed_model = json.loads(model[:-2].replace("\\",""))
+            parsed_model = json.loads(model[7:-2].replace("\\",""))
         except json.decoder.JSONDecodeError as e:
-            logging.warning(f"[!] Failed to parse: {model[:-2]} from {download_location}")
+            logging.warning(f"[!] Failed to parse: {model[7:-2]} from {download_location}")
             continue
 
         if 'metadata' not in parsed_model.keys():
             logging.info(f"[-] No metadata found - {parsed_model}")
             continue
 
+        if 'operations' not in parsed_model.keys():
+            logging.info(f"[-] No operations found - {parsed_model}")
+            continue
+
         # TODO: Better handling for non-uid models (<1%)
         if "uid" not in parsed_model['metadata'].keys():
-            logging.info(f"[-] No UID found - {parsed_model['metadata']['serviceFullName']}")
+            if "serviceFullName" in parsed_model['metadata'].keys():
+                logging.info(f"[-] No UID found - {parsed_model['metadata']['serviceFullName']}")
+                filename = parsed_model['metadata']['serviceFullName']
+            else:
+                logging.info(f"[-] No UID found - unnamed")
+                filename = "".join([item for item in parsed_model['metadata'].values() if type(item) is str])
+            #_mark_download_location(parsed_model, download_location) <- unsafe
+            _dump_to_file(parsed_model, download_location, filename, './incomplete') 
             continue
         
         if not save:
