@@ -50,10 +50,16 @@ for file in modelfiles:
     if data['metadata']['uid'] not in botocore.keys():
         print(f"{data['metadata']['uid']} not found  ")
         for operation in data['operations'].keys():
-            print(f"[v]({MODELS_DIR}/{file}) - {data['metadata']['uid']}:{operation}  ")
+            internal = ""
+            if "internalonly" in data['operations'][operation].keys():
+                internal = "internalonly"
+            print(f"[v]({MODELS_DIR}/{file}) - {data['metadata']['uid']}:{operation} {internal}  ")
     
     # Next, if the uid's match, compare the operations
     elif data['metadata']['uid'] in botocore.keys():
         for operation in data['operations']:
             if operation not in botocore[data['metadata']['uid']]['operations'].keys():
-                print(f"[v]({MODELS_DIR}/{file}) - {data['metadata']['uid']}:{operation}  ")
+                internal = ""
+                if "internalonly" in data['operations'][operation].keys():
+                    internal = "internalonly"
+                print(f"[v]({MODELS_DIR}/{file}) - {data['metadata']['uid']}:{operation} {internal}  ")
