@@ -10,7 +10,7 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
 
     for model in matches:
         # This is necessary to remove 2 trailing characters
-        # and to replace some invalid JSON caracters
+        # and to replace some invalid JSON characters
         try:
             parsed_model = json.loads(model[7:-2].replace("\\",""))
         except json.decoder.JSONDecodeError as e:
