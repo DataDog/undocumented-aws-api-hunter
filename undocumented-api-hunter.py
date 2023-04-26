@@ -114,6 +114,9 @@ def initialize(args):
     logging.getLogger('chardet.universaldetector').setLevel(logging.CRITICAL)
     logging.getLogger('sqlalchemy.engine').setLevel(logging.CRITICAL)
 
+    timestamp = datetime.datetime.now() 
+    logging.info(f"[$] Starting new run at {timestamp.strftime('%d/%m/%Y %H:%M:%S')}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Find this pesky undocumented AWS APIs with the AWS Console")
