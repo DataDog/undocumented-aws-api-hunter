@@ -8,3 +8,4 @@ botocore
 endpoints.txt
 compare_output.md
 temp
+models.db

@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-import requests, re, json, os, time
+import requests, re, json, os, time, datetime
 import argparse, logging, sys
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
+from sqlalchemy import create_engine
+
+from db_models import Model, Operation
+
 import selenium_driver
 import aws_connector
+import database
 
 MODEL_DIR = "./models"
 LOG_DIR = "./logs"
@@ -25,6 +30,9 @@ def main(args):
     elif args.extract:
         js_content = aws_connector.fetch_service_model(args.extract)
         aws_connector.parse_service_model(js_content, args.extract, False, MODEL_DIR)
+        exit()
+    elif args.manual:
+        database.manual_db_load(MODEL_DIR)
         exit()
 
     driver = selenium_driver.create_driver(args)
@@ -80,7 +88,8 @@ def initialize(args):
     # Check needed environment variables
     env_vars = ["UAH_ACCOUNT_ID", "UAH_USERNAME", "UAH_PASSWORD"]
     for env_var in env_vars:
-        if env_var not in os.environ and not args.extract:
+        # TODO: Fix this below
+        if env_var not in os.environ and not args.manual:
             print(f"[!] Mising environment variable: {env_var}")
             print(f"[-] Terminating")
             exit()
@@ -103,6 +112,7 @@ def initialize(args):
     logging.getLogger('json').setLevel(logging.CRITICAL)
     logging.getLogger('chardet.charsetprober').setLevel(logging.CRITICAL)
     logging.getLogger('chardet.universaldetector').setLevel(logging.CRITICAL)
+    logging.getLogger('sqlalchemy.engine').setLevel(logging.CRITICAL)
 
 
 if __name__ == "__main__":
@@ -116,6 +126,8 @@ if __name__ == "__main__":
                         help="Displays all operations for a model with x number of download locations")
     parser.add_argument('--extract', dest='extract', action='store', type=str,
                         help="Extract all service models from a given URL.")
+    parser.add_argument('--manual-load', dest='manual', action='store_true', default=False,
+                        help="Manually load models into the DB.")
 
     args = parser.parse_args()
 
