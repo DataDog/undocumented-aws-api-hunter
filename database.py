@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import date
 
-from db_models import Model, Operation, DownloadLocation
+from db_models import Model, Operation
 
 def manual_db_load(MODEL_DIR):
     for model in os.listdir(MODEL_DIR):
@@ -27,11 +27,8 @@ def manual_db_load(MODEL_DIR):
         for operation in data['operations'].items():
             exists = any(operation[0] == op.name for op in model.operations)
             if not exists:
+                # Check if the download_location exists
                 download_locations = []
-                for location in operation[1]['download_location']:
-                    download_locations.append(DownloadLocation(
-                        url=location
-                    ))
 
                 operations.append(Operation(
                     name=operation[0],
@@ -45,6 +42,19 @@ def manual_db_load(MODEL_DIR):
 
         session.add(model)
         session.commit()
+
+
+def add_model(model):
+    session = load_session()
+
+    model = Model(
+        uid=model['metadata']['uid'],
+        model_metadata=model['metadata'],
+        first_seen=date.today(),
+        last_seen=date.today()
+    )
+    session.add(model)
+    session.commit()
 
 
 def load_session():

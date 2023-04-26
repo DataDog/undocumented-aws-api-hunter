@@ -1,4 +1,8 @@
 import requests, logging, re, json, os
+import database
+
+from datetime import date
+from db_models import Model, Operation
 
 def parse_service_model(js_content, download_location, save, MODEL_DIR):
     match1 = re.findall("(parse\('{\"version\":\"[\.0-9]*?\",.*?'\))", js_content)
@@ -52,7 +56,9 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
             parsed_model = _mark_download_location(parsed_model, download_location)
             complete_model = _integrate_models(parsed_model, existing_model, download_location)
             _dump_to_file(complete_model, download_location, filename, MODEL_DIR)
+            _dump_to_db(complete_model, download_location)
         else:
+            logging.info(f"[+] New model found: {parsed_model['metadata']['uid']}")
             parsed_model = _mark_download_location(parsed_model, download_location)
             _dump_to_file(parsed_model, download_location, parsed_model['metadata']['uid'], MODEL_DIR)
 
@@ -146,6 +152,30 @@ def _dump_to_file(model, download_location, filename, MODEL_DIR):
     filename = f"{MODEL_DIR}/{filename}.json"
     with open(filename, "w") as w:
         json.dump(model, w, indent=4)
+
+
+def _dump_to_db(model, download_location):
+    session = database.load_session()
+
+    # If the model does not exist we must create it
+    if session.query(Model).filter(Model.uid == model['metadata']['uid']).first() is None:
+        database.add_model(model)
+
+    # We now must check if we know about the operations from the imported model
+    existing_model = session.query(Model).filter(Model.uid == model['metadata']['uid']).first()
+
+    for operation_name, operation_metadata in model['operations'].items():
+        exists = any(operation_name == op.name for op in existing_model.operations)
+        if not exists:
+            operation = Operation(
+                name=operation_name,
+                operation_metadata=operation_metadata,
+                first_seen=date.today(),
+                last_seen=date.today(),
+                model=existing_model
+            )
+            session.add(operation)
+            session.commit()
 
 
 def _integrate_models(parsed_model, existing_model, download_location):
