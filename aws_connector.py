@@ -193,5 +193,10 @@ def _integrate_models(parsed_model, existing_model, download_location):
                 existing_model['operations'][operation]['download_location'] = [download_location]
             else:
                 existing_model['operations'][operation]['download_location'].append(download_location)
+
+    # Now add new shapes
+    for shape in parsed_model['shapes']:
+        if shape not in existing_model['shapes'].keys():
+            existing_model['shapes'][shape] = parsed_model['shapes'][shape]
     
     return existing_model
