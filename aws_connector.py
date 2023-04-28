@@ -32,7 +32,7 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
         # TODO: Better handling for non-uid models (<1%)
         if "uid" not in parsed_model['metadata'].keys():
             if "serviceFullName" in parsed_model['metadata'].keys():
-                logging.info(f"[-] No UID found - {parsed_model['metadata']['serviceFullName']}")
+                #logging.info(f"[-] No UID found - {parsed_model['metadata']['serviceFullName']}")
                 filename = parsed_model['metadata']['serviceFullName']
             else:
                 logging.info(f"[-] No UID found - unnamed")
