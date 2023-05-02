@@ -54,7 +54,7 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
 
             # Need to mark downloads from the new one before integrating
             parsed_model = _mark_download_location(parsed_model, download_location)
-            complete_model = _integrate_models(parsed_model, existing_model, download_location)
+            complete_model = _integrate_models(parsed_model, existing_model)
             _dump_to_file(complete_model, download_location, filename, MODEL_DIR)
             _dump_to_db(complete_model, download_location)
         else:
@@ -115,12 +115,16 @@ def _mark_download_location(model, download_location):
     if 'download_location' not in model['metadata'].keys():
         model['metadata']['download_location'] = [download_location]
     elif download_location not in model['metadata']['download_location']:
+        if len(model['metadata']['download_location']) >= 25:
+            model['metadata']['download_location'] = model['metadata']['download_location'][24:]
         model['metadata']['download_location'].append(download_location)
 
     for operation in model['operations']:
         if 'download_location' not in model['operations'][operation].keys():
             model['operations'][operation]['download_location'] = [download_location]
         elif download_location not in model['operations'][operation]['download_location']:
+            if len(model['metadata']['download_location']) >= 25:
+                model['metadata']['download_location'] = model['metadata']['download_location'][24:]
             model['operations'][operation]['download_location'].append(download_location)
 
     return model
@@ -178,21 +182,12 @@ def _dump_to_db(model, download_location):
             session.commit()
 
 
-def _integrate_models(parsed_model, existing_model, download_location):
-    # First update existing ops
-    for operation in existing_model['operations']:
-        if operation in parsed_model['operations'].keys():
-            existing_model['operations'][operation]['download_location'].append(download_location)
-
+def _integrate_models(parsed_model, existing_model):
     # Next add new ones
     for operation in parsed_model['operations']:
         if operation not in existing_model['operations'].keys():
             logging.info(f"[+] Adding new operation: {existing_model['metadata']['uid']}:{operation}")
             existing_model['operations'][operation] = parsed_model['operations'][operation]
-            if "download_location" not in existing_model['operations'][operation].keys():
-                existing_model['operations'][operation]['download_location'] = [download_location]
-            else:
-                existing_model['operations'][operation]['download_location'].append(download_location)
 
     # Now add new shapes
     for shape in parsed_model['shapes']:
