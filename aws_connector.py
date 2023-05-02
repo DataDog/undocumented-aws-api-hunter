@@ -37,8 +37,8 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
             else:
                 logging.info(f"[-] No UID found - unnamed")
                 filename = "".join([item for item in parsed_model['metadata'].values() if type(item) is str])
-            #_mark_download_location(parsed_model, download_location) <- unsafe
-            _dump_to_file(parsed_model, download_location, filename, './incomplete') 
+            #_mark_download_location(parsed_model, download_location)
+            _dump_to_file(parsed_model, filename, './incomplete') 
             continue
         
         if not save:
@@ -55,12 +55,12 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
             # Need to mark downloads from the new one before integrating
             parsed_model = _mark_download_location(parsed_model, download_location)
             complete_model = _integrate_models(parsed_model, existing_model)
-            _dump_to_file(complete_model, download_location, filename, MODEL_DIR)
+            _dump_to_file(complete_model, filename, MODEL_DIR)
             _dump_to_db(complete_model, download_location)
         else:
             logging.info(f"[+] New model found: {parsed_model['metadata']['uid']}")
             parsed_model = _mark_download_location(parsed_model, download_location)
-            _dump_to_file(parsed_model, download_location, parsed_model['metadata']['uid'], MODEL_DIR)
+            _dump_to_file(parsed_model, parsed_model['metadata']['uid'], MODEL_DIR)
 
 
 def fetch_service_model(javascript_url):
@@ -130,35 +130,18 @@ def _mark_download_location(model, download_location):
     return model
 
         
-def _uid_stored(uid, MODEL_DIR):
-    for model_name in os.listdir(MODEL_DIR):
-        if uid in model_name:
-            return True
-    return False
-
-
 def _load_file(filename, MODEL_DIR):
     with open(f"{MODEL_DIR}/{filename}.json", "r") as r:
         return json.load(r)
 
 
-def _get_models(uid, MODEL_DIR):
-    to_return = []
-    for model_name in os.listdir(MODEL_DIR):
-        if uid in model_name:
-            r = open(f"{MODEL_DIR}/{model_name}", "r")
-            to_return.append( (model_name, json.load(r)) )
-            r.close()
-    return to_return
-
-
-def _dump_to_file(model, download_location, filename, MODEL_DIR):
+def _dump_to_file(model, filename, MODEL_DIR):
     filename = f"{MODEL_DIR}/{filename}.json"
     with open(filename, "w") as w:
         json.dump(model, w, indent=4)
 
 
-def _dump_to_db(model, download_location):
+def _dump_to_db(model):
     session = database.load_session()
 
     # If the model does not exist we must create it
