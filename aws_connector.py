@@ -1,7 +1,7 @@
 import requests, logging, re, json, os
 import database
 
-from datetime import date
+from datetime import date, datetime
 from db_models import Model, Operation
 
 def parse_service_model(js_content, download_location, save, MODEL_DIR):
@@ -18,15 +18,15 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
         try:
             parsed_model = json.loads(model[7:-2].replace("\\",""))
         except json.decoder.JSONDecodeError as e:
-            logging.warning(f"[!] Failed to parse: {model[7:-2]} from {download_location}")
+            logging.warning(f"{datetime.now()} ERROR - Failed to parse: {model[7:-2]} from {download_location}")
             continue
 
         if 'metadata' not in parsed_model.keys():
-            logging.info(f"[-] No metadata found - {parsed_model}")
+            logging.info(f"{datetime.now()} ERROR - No metadata found - {parsed_model}")
             continue
 
         if 'operations' not in parsed_model.keys():
-            logging.info(f"[-] No operations found - {parsed_model}")
+            logging.info(f"{datetime.now()} ERROR - No operations found - {parsed_model}")
             continue
 
         # TODO: Better handling for non-uid models (<1%)
@@ -35,7 +35,7 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
                 #logging.info(f"[-] No UID found - {parsed_model['metadata']['serviceFullName']}")
                 filename = parsed_model['metadata']['serviceFullName']
             else:
-                logging.info(f"[-] No UID found - unnamed")
+                logging.info(f"{datetime.now()} ERROR - No UID found - unnamed")
                 filename = "".join([item for item in parsed_model['metadata'].values() if type(item) is str])
             #_mark_download_location(parsed_model, download_location)
             _dump_to_file(parsed_model, filename, './incomplete') 
@@ -58,7 +58,7 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
             _dump_to_file(complete_model, filename, MODEL_DIR)
             _dump_to_db(complete_model)
         else:
-            logging.info(f"[+] New model found: {parsed_model['metadata']['uid']}")
+            logging.info(f"{datetime.now()} INFO - New model found: {parsed_model['metadata']['uid']}")
             parsed_model = _mark_download_location(parsed_model, download_location)
             _dump_to_file(parsed_model, parsed_model['metadata']['uid'], MODEL_DIR)
 
@@ -67,11 +67,11 @@ def fetch_service_model(javascript_url):
     try:
         resp = requests.get(javascript_url, timeout=30)
     except Exception as e:
-        logging.error(f"[!] Failed to retruenve {javascript_url} {e}")
+        logging.error(f"{datetime.now()} ERROR - Failed to retrieve {javascript_url} {e}")
         return None
 
     if resp.status_code != 200:
-        logging.error(f"[!] Failed to retrieve {javascript_url}")
+        logging.error(f"{datetime.now()} ERROR - Failed to retrieve {javascript_url}")
     return resp.text
 
 
@@ -169,7 +169,7 @@ def _integrate_models(parsed_model, existing_model):
     # Next add new ones
     for operation in parsed_model['operations']:
         if operation not in existing_model['operations'].keys():
-            logging.info(f"[+] Adding new operation: {existing_model['metadata']['uid']}:{operation}")
+            logging.info(f"{datetime.now()} INFO - Adding new operation: {existing_model['metadata']['uid']}:{operation}")
             existing_model['operations'][operation] = parsed_model['operations'][operation]
 
     # Now add new shapes

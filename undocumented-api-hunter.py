@@ -115,7 +115,7 @@ def initialize(args):
     logging.getLogger('sqlalchemy.engine').setLevel(logging.CRITICAL)
 
     timestamp = datetime.datetime.now() 
-    logging.info(f"[$] Starting new run at {timestamp.strftime('%d/%m/%Y %H:%M:%S')}")
+    logging.info(f"{datetime.datetime.now()} INFO - Starting new run at {timestamp.strftime('%m/%d/%Y %H:%M:%S')}")
 
 
 if __name__ == "__main__":
