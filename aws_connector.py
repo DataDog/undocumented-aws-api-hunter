@@ -189,11 +189,5 @@ def _integrate_models(parsed_model, existing_model):
     for shape in parsed_model['shapes']:
         if shape not in existing_model['shapes'].keys():
             existing_model['shapes'][shape] = parsed_model['shapes'][shape]
-        else:
-            if len(existing_model['shapes'][shape]['download_location']) >= 25:
-                existing_model['shapes'][shape]['download_location'] = existing_model['shapes'][shape]['download_location'][:24]
-            # This shape already exists, but let's update its download_location
-            if parsed_model['shapes'][shape]['download_location'] not in existing_model['shapes'][shape]['download_location']:
-                existing_model['shapes'][shape]['download_location'].append(parsed_model['shapes'][shape]['download_location'])
     
     return existing_model
