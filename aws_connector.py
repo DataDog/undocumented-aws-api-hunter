@@ -168,10 +168,10 @@ def _dump_to_db(model):
 
 def _integrate_models(parsed_model, existing_model):
     # First, update the download location for the metadata
-    if parsed_model['metadata']['download_location'] not in existing_model['metadata']['download_location']:
+    if parsed_model['metadata']['download_location'][0] not in existing_model['metadata']['download_location']:
         if len(existing_model['metadata']['download_location']) >= 25:
             existing_model['metadata']['download_location'] = existing_model['metadata']['download_location'][:24]
-        existing_model['metadata']['download_location'].append(parsed_model['metadata']['download_location'])
+        existing_model['metadata']['download_location'] += (parsed_model['metadata']['download_location'])
 
     # Next add new operations
     for operation in parsed_model['operations']:
@@ -182,8 +182,8 @@ def _integrate_models(parsed_model, existing_model):
             if len(existing_model['operations'][operation]['download_location']) >= 25:
                 existing_model['operations'][operation]['download_location'] = existing_model['operations'][operation]['download_location'][:24]
             # This operation already exists, but let's update its download_location
-            if parsed_model['operations'][operation]['download_location'] not in existing_model['operations'][operation]['download_location']:
-                existing_model['operations'][operation]['download_location'].append(parsed_model['operations'][operation]['download_location'])
+            if parsed_model['operations'][operation]['download_location'][0] not in existing_model['operations'][operation]['download_location']:
+                existing_model['operations'][operation]['download_location'] += (parsed_model['operations'][operation]['download_location'])
 
     # Now add new shapes
     for shape in parsed_model['shapes']:
