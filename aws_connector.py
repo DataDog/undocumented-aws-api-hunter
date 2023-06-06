@@ -1,7 +1,7 @@
 import requests, logging, re, json, os
 import database
 
-from datetime import date
+from datetime import date, datetime
 from db_models import Model, Operation
 
 def parse_service_model(js_content, download_location, save, MODEL_DIR):
@@ -18,24 +18,24 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
         try:
             parsed_model = json.loads(model[7:-2].replace("\\",""))
         except json.decoder.JSONDecodeError as e:
-            logging.warning(f"[!] Failed to parse: {model[7:-2]} from {download_location}")
+            logging.warning(f"{datetime.now()} ERROR - Failed to parse: {model[7:-2]} from {download_location}")
             continue
 
         if 'metadata' not in parsed_model.keys():
-            logging.info(f"[-] No metadata found - {parsed_model}")
+            logging.info(f"{datetime.now()} ERROR - No metadata found - {parsed_model}")
             continue
 
         if 'operations' not in parsed_model.keys():
-            logging.info(f"[-] No operations found - {parsed_model}")
+            logging.info(f"{datetime.now()} ERROR - No operations found - {parsed_model}")
             continue
 
         # TODO: Better handling for non-uid models (<1%)
         if "uid" not in parsed_model['metadata'].keys():
             if "serviceFullName" in parsed_model['metadata'].keys():
                 #logging.info(f"[-] No UID found - {parsed_model['metadata']['serviceFullName']}")
-                filename = parsed_model['metadata']['serviceFullName']
+                filename = f"{parsed_model['metadata']['serviceFullName']}-{parsed_model['metadata']['protocol']}"
             else:
-                logging.info(f"[-] No UID found - unnamed")
+                logging.info(f"{datetime.now()} ERROR - No UID found - unnamed")
                 filename = "".join([item for item in parsed_model['metadata'].values() if type(item) is str])
             #_mark_download_location(parsed_model, download_location)
             _dump_to_file(parsed_model, filename, './incomplete') 
@@ -45,11 +45,11 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
             # Just print it
             print(json.dumps(parsed_model, indent=4))
         # Need to determine if we have this file already
-        elif os.path.exists(f"{MODEL_DIR}/{parsed_model['metadata']['uid']}.json"):
+        elif os.path.exists(f"{MODEL_DIR}/{parsed_model['metadata']['uid']}-{parsed_model['metadata']['protocol']}.json"):
             # Integrate
             # TODO: there are some with alternative serviceFullNames and perhaps other info
             # Need to explore if there is enough of them to have special handling here.
-            filename = f"{parsed_model['metadata']['uid']}"
+            filename = f"{parsed_model['metadata']['uid']}-{parsed_model['metadata']['protocol']}"
             existing_model = _load_file(filename, MODEL_DIR)
 
             # Need to mark downloads from the new one before integrating
@@ -58,20 +58,21 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
             _dump_to_file(complete_model, filename, MODEL_DIR)
             _dump_to_db(complete_model)
         else:
-            logging.info(f"[+] New model found: {parsed_model['metadata']['uid']}")
+            logging.info(f"{datetime.now()} INFO - New model found: {parsed_model['metadata']['uid']}")
             parsed_model = _mark_download_location(parsed_model, download_location)
-            _dump_to_file(parsed_model, parsed_model['metadata']['uid'], MODEL_DIR)
+            filename = f"{parsed_model['metadata']['uid']}-{parsed_model['metadata']['protocol']}"
+            _dump_to_file(parsed_model, filename, MODEL_DIR)
 
 
 def fetch_service_model(javascript_url):
     try:
         resp = requests.get(javascript_url, timeout=30)
     except Exception as e:
-        logging.error(f"[!] Failed to retruenve {javascript_url} {e}")
+        logging.error(f"{datetime.now()} ERROR - Failed to retrieve {javascript_url} {e}")
         return None
 
     if resp.status_code != 200:
-        logging.error(f"[!] Failed to retrieve {javascript_url}")
+        logging.error(f"{datetime.now()} ERROR - Failed to retrieve {javascript_url}")
     return resp.text
 
 
@@ -166,15 +167,33 @@ def _dump_to_db(model):
 
 
 def _integrate_models(parsed_model, existing_model):
-    # Next add new ones
+    # First, update the download location for the metadata
+    if parsed_model['metadata']['download_location'] not in existing_model['metadata']['download_location']:
+        if len(existing_model['metadata']['download_location']) >= 25:
+            existing_model['metadata']['download_location'] = existing_model['metadata']['download_location'][:24]
+        existing_model['metadata']['download_location'].append(parsed_model['metadata']['download_location'])
+
+    # Next add new operations
     for operation in parsed_model['operations']:
         if operation not in existing_model['operations'].keys():
-            logging.info(f"[+] Adding new operation: {existing_model['metadata']['uid']}:{operation}")
+            logging.info(f"{datetime.now()} INFO - Adding new operation: {existing_model['metadata']['uid']}:{operation}")
             existing_model['operations'][operation] = parsed_model['operations'][operation]
+        else:
+            if len(existing_model['operations'][operation]['download_location']) >= 25:
+                existing_model['operations'][operation]['download_location'] = existing_model['operations'][operation]['download_location'][:24]
+            # This operation already exists, but let's update its download_location
+            if parsed_model['operations'][operation]['download_location'] not in existing_model['operations'][operation]['download_location']:
+                existing_model['operations'][operation]['download_location'].append(parsed_model['operations'][operation]['download_location'])
 
     # Now add new shapes
     for shape in parsed_model['shapes']:
         if shape not in existing_model['shapes'].keys():
             existing_model['shapes'][shape] = parsed_model['shapes'][shape]
+        else:
+            if len(existing_model['shapes'][shape]['download_location']) >= 25:
+                existing_model['shapes'][shape]['download_location'] = existing_model['shapes'][shape]['download_location'][:24]
+            # This shape already exists, but let's update its download_location
+            if parsed_model['shapes'][shape]['download_location'] not in existing_model['shapes'][shape]['download_location']:
+                existing_model['shapes'][shape]['download_location'].append(parsed_model['shapes'][shape]['download_location'])
     
     return existing_model
