@@ -11,3 +11,4 @@ temp
 models.db
 venv
 old_models
+application.log
