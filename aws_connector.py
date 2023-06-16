@@ -171,20 +171,32 @@ def _integrate_models(parsed_model, existing_model):
     if parsed_model['metadata']['download_location'][0] not in existing_model['metadata']['download_location']:
         if len(existing_model['metadata']['download_location']) >= 25:
             existing_model['metadata']['download_location'] = existing_model['metadata']['download_location'][1:]
-        existing_model['metadata']['download_location'] += (parsed_model['metadata']['download_location'])
 
-    # Next add new operations
+        existing_model['metadata']['download_location'] += parsed_model['metadata']['download_location']
+
+    # Next deal with operations
     for operation in parsed_model['operations']:
         if operation not in existing_model['operations'].keys():
             logging.info(f"{datetime.now()} INFO - Adding new operation: {existing_model['metadata']['uid']}:{operation}")
-
             existing_model['operations'][operation] = parsed_model['operations'][operation]
+
         else:
             if len(existing_model['operations'][operation]['download_location']) >= 25:
                 existing_model['operations'][operation]['download_location'] = existing_model['operations'][operation]['download_location'][1:]
+
             # This operation already exists, but let's update its download_location
             if parsed_model['operations'][operation]['download_location'][0] not in existing_model['operations'][operation]['download_location']:
                 existing_model['operations'][operation]['download_location'] += (parsed_model['operations'][operation]['download_location'])
+
+            # This operation already exists, so let's integrate its parameters
+            if 'input' in parsed_model['operations'][operation].keys() and 'members' in parsed_model['operations'][operation]['input'].keys():
+                for member in parsed_model['operations'][operation]['input']['members'].keys():
+                    if 'members' not in existing_model['operations'][operation]['input'].keys():
+                        existing_model['operations'][operation]['input']['members'] = {}
+
+                    if member not in existing_model['operations'][operation]['input']['members'].keys():
+                        existing_model['operations'][operation]['input']['members'][member] = parsed_model['operations'][operation]['input']['members'][member]
+                        logging.info(f"{datetime.now()} INFO - Adding new input parameter: {existing_model['metadata']['uid']}:{operation}:{member}")
 
     # Now add new shapes
     for shape in parsed_model['shapes']:
