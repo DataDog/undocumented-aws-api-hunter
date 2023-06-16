@@ -171,7 +171,6 @@ def _integrate_models(parsed_model, existing_model):
     if parsed_model['metadata']['download_location'][0] not in existing_model['metadata']['download_location']:
         if len(existing_model['metadata']['download_location']) >= 25:
             existing_model['metadata']['download_location'] = existing_model['metadata']['download_location'][1:]
-
         existing_model['metadata']['download_location'] += (parsed_model['metadata']['download_location'])
 
     # Next add new operations
