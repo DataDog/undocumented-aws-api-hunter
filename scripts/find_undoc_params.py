@@ -12,6 +12,23 @@ if "botocore" not in os.listdir("."):
     print(f"Error! Please download botocore locally")
     exit()
 
+
+def find_shape(model, shape_name, previous_shape):
+    flatlist = []
+
+    if model['shapes'][shape_name]['type'] == "structure":
+        for member in model['shapes'][shape_name]['members'].keys():
+            # To prevent infinite recursion scenarios, break out here
+            # Example: https://github.com/boto/botocore/blob/bc89f1540e0cbb000561a72d20de9df0e92b9f4d/botocore/data/lexv2-runtime/2020-08-07/service-2.json#L532
+            if shape_name == model['shapes'][shape_name]['members'][member]['shape']:
+                continue
+            flatlist += find_shape(model, model['shapes'][shape_name]['members'][member]['shape'], member)
+    else:
+        flatlist.append(previous_shape)
+
+    return flatlist
+
+
 # Slurp all botocore models into memory
 # with `uid` as the primary key
 for service in os.listdir(BOTOCORE_MODELS):
@@ -39,20 +56,25 @@ for model in os.listdir(MODELS_DIR):
             continue
         models[data['metadata']['uid']] = data 
 
-# Now let's compare the two
-for model_name, model in models.items():
-    if model['metadata']['uid'] not in botocore.keys():
+# Let's recursively search for missing params
+for model_name, model in botocore.items():
+    if model['metadata']['uid'] not in models.keys():
         continue
+    scraped_model = models[model['metadata']['uid']]
 
     for operation_name, operation in model['operations'].items():
-        if 'input' not in operation.keys() or 'members' not in operation['input'].keys():
+        if 'input' not in operation.keys():
             continue
-        for param in operation['input']['members'].keys():
-            if operation_name not in botocore[model['metadata']['uid']]['operations'].keys():
-                continue
-            if "input" not in botocore[model['metadata']['uid']]['operations'][operation_name].keys():
-                continue
-            print(botocore[model['metadata']['uid']]['operations'][operation_name]['input'])
+        if operation_name not in scraped_model['operations'].keys():
+            continue
 
-            if param not in botocore[model['metadata']['uid']]['operations'][operation_name]['input']['members'].keys():
-                print(f"Missing param: {param} in {model_name}::{operation_name}")
+        botocore_params = find_shape(model, operation['input']['shape'], "")
+
+        if 'input' not in scraped_model['operations'][operation_name].keys():
+            continue
+        if 'members' not in scraped_model['operations'][operation_name]['input'].keys():
+            continue
+
+        for param in scraped_model['operations'][operation_name]['input']['members'].keys():
+            if param not in botocore_params:
+                print(f"Missing param: {model['metadata']['uid']}:{operation_name}:{param}")
