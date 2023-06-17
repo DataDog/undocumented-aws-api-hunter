@@ -8,11 +8,8 @@ from selenium.webdriver.common.by import By
 
 from sqlalchemy import create_engine
 
-from db_models import Model, Operation
-
 import selenium_driver
 import aws_connector
-import database
 
 MODEL_DIR = "./models"
 LOG_DIR = "./logs"
@@ -30,9 +27,6 @@ def main(args):
     elif args.extract:
         js_content = aws_connector.fetch_service_model(args.extract)
         aws_connector.parse_service_model(js_content, args.extract, False, MODEL_DIR)
-        exit()
-    elif args.manual:
-        database.manual_db_load(MODEL_DIR)
         exit()
 
     driver = selenium_driver.create_driver(args)
@@ -112,7 +106,6 @@ def initialize(args):
     logging.getLogger('json').setLevel(logging.CRITICAL)
     logging.getLogger('chardet.charsetprober').setLevel(logging.CRITICAL)
     logging.getLogger('chardet.universaldetector').setLevel(logging.CRITICAL)
-    logging.getLogger('sqlalchemy.engine').setLevel(logging.CRITICAL)
 
     timestamp = datetime.datetime.now() 
     logging.info(f"{datetime.datetime.now()} INFO - Starting new run at {timestamp.strftime('%m/%d/%Y %H:%M:%S')}")
