@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-import requests, re, json, os, time, datetime
+import os, datetime
 import argparse, logging, sys
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-
-from sqlalchemy import create_engine
 
 import selenium_driver
 import aws_connector
@@ -20,9 +18,6 @@ def main(args):
     if args.single:
         js_content = aws_connector.fetch_service_model(args.single)
         aws_connector.parse_service_model(js_content, args.single, True, MODEL_DIR)
-        exit()
-    elif args.dcount:
-        print(args.dcount)
         exit()
     elif args.extract:
         js_content = aws_connector.fetch_service_model(args.extract)
@@ -78,8 +73,6 @@ def initialize(args):
     # Check for a local models directory
     if not os.path.isdir(MODEL_DIR):
         os.mkdir(MODEL_DIR)
-    if not os.path.isdir(LOG_DIR):
-        os.mkdir(LOG_DIR)
     if not os.path.isdir("./incomplete"):
         os.mkdir("./incomplete")
 
@@ -122,12 +115,8 @@ if __name__ == "__main__":
                         help="Do not open a visible chrome window. Headless mode. (Default: False)")
     parser.add_argument('--single', dest='single', action='store', type=str,
                         help="Parses a single URL for its models.")
-    parser.add_argument('--dcount', dest='dcount', action='store', type=int,
-                        help="Displays all operations for a model with x number of download locations")
     parser.add_argument('--extract', dest='extract', action='store', type=str,
                         help="Extract all service models from a given URL.")
-    parser.add_argument('--manual-load', dest='manual', action='store_true', default=False,
-                        help="Manually load models into the DB.")
 
     args = parser.parse_args()
 

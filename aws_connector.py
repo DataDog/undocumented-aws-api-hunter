@@ -1,6 +1,6 @@
 import requests, logging, re, json, os
 
-from datetime import date, datetime
+from datetime import datetime
 
 def parse_service_model(js_content, download_location, save, MODEL_DIR):
     match1 = re.findall("(parse\('{\"version\":\"[\.0-9]*?\",.*?'\))", js_content)
