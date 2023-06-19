@@ -78,6 +78,10 @@ def initialize(args):
     # Check for a local models directory
     if not os.path.isdir(MODEL_DIR):
         os.mkdir(MODEL_DIR)
+    if not os.path.isdir(LOG_DIR):
+        os.mkdir(LOG_DIR)
+    if not os.path.isdir("./incomplete"):
+        os.mkdir("./incomplete")
 
     # Check needed environment variables
     env_vars = ["UAH_ACCOUNT_ID", "UAH_USERNAME", "UAH_PASSWORD"]
