@@ -25,18 +25,18 @@ def main(args):
 
     aws_services = aws_connector.fetch_services()
 
-    queried_javascript = set()
-    endpoints = set()
+    endpoints = load_endpoints()
 
     for service in aws_services:
+        queried_javascript = set()
         url = aws_connector.process_url(service)
         if url is None:
             continue
 
         driver.get(url)
 
-        endpoints = aws_connector.add_endpoints(driver.page_source, endpoints)
-        javascript = aws_connector.find_javascript(driver.page_source)
+        endpoints = endpoints.union(aws_connector.parse_endpoints(driver.page_source))
+        javascript = aws_connector.find_javascript_urls(driver.page_source)
         for script in javascript:
             if script not in queried_javascript:
                 js_content = aws_connector.fetch_service_model(script)
@@ -51,18 +51,12 @@ def main(args):
             w.write(f"{item}\n")
 
 
-def uid_stored(uid):
-    for definition in os.listdir("./crawled"):
-        if uid in definition:
-            return True
-    return False
-
-
-def mark_download_location(parsed, download_location):
-    parsed['metadata']['download_location'] = [download_location]
-    for operation in parsed['operations']:
-        parsed['operations'][operation]['download_location'] = [download_location]
-    return parsed
+def load_endpoints():
+    to_return = set()
+    with open("./endpoints.txt", 'r') as r:
+        for url in r:
+            to_return.add(url.strip())
+    return to_return
 
 
 def initialize(args):
@@ -71,12 +65,14 @@ def initialize(args):
         os.mkdir(MODEL_DIR)
     if not os.path.isdir("./incomplete"):
         os.mkdir("./incomplete")
+    if not os.path.isfile("./endpoints.txt"):
+        open("./endpoints.txt", 'w').close()
 
     # Check needed environment variables
     env_vars = ["UAH_ACCOUNT_ID", "UAH_USERNAME", "UAH_PASSWORD"]
     for env_var in env_vars:
         # TODO: Fix this below
-        if env_var not in os.environ and not args.manual:
+        if env_var not in os.environ:
             print(f"[!] Mising environment variable: {env_var}")
             print(f"[-] Terminating")
             exit()
