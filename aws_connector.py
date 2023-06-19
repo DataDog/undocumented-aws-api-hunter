@@ -97,14 +97,15 @@ def process_url(service):
         return service['url']
 
 
-def add_endpoints(driver_content, endpoints):
+def parse_endpoints(driver_content):
+    to_return = set()
     match = re.findall("(?:\w+ndpoint)&quot;\s*:\s*&quot;\s*([^&]+)", driver_content)
     for item in match:
-        endpoints.add(item)
-    return endpoints
+        to_return.add(item)
+    return to_return
 
 
-def find_javascript(driver_content):
+def find_javascript_urls(driver_content):
     match = re.findall("(https?:\/\/[\w\-._~:\/?#\[\]@!$&'()*+,;=]+\.js)", driver_content)
     return match
 
