@@ -19,10 +19,6 @@ def main(args):
         js_content = aws_connector.fetch_service_model(args.single)
         aws_connector.parse_service_model(js_content, args.single, True, MODEL_DIR)
         exit()
-    elif args.extract:
-        js_content = aws_connector.fetch_service_model(args.extract)
-        aws_connector.parse_service_model(js_content, args.extract, False, MODEL_DIR)
-        exit()
 
     driver = selenium_driver.create_driver(args)
     driver = selenium_driver.authenticate(driver)
@@ -115,8 +111,6 @@ if __name__ == "__main__":
                         help="Do not open a visible chrome window. Headless mode. (Default: False)")
     parser.add_argument('--single', dest='single', action='store', type=str,
                         help="Parses a single URL for its models.")
-    parser.add_argument('--extract', dest='extract', action='store', type=str,
-                        help="Extract all service models from a given URL.")
 
     args = parser.parse_args()
 
