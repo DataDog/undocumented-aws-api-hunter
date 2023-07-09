@@ -5,7 +5,7 @@ A tool to uncover undocumented apis from the AWS Console.
 ## Installation
 
 ```
-git clone git@github.com:Frichetten/undocumented-api-hunter.git
+git clone https://github.com/Frichetten/undocumented-api-hunter.git
 ```
 
 Inside the directory, create a new [virtual environment](https://docs.python.org/3/library/venv.html) with the following command:
