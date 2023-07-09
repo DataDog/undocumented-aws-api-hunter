@@ -26,7 +26,9 @@ Install packages:
 python3 -m pip install -r requirements.txt
 ```
 
-Run the tool with:
+## Usage
+
+Please create an IAM user in your account with console access. Then export the following environment variables with the associated info: `UAH_USERNAME`, `UAH_PASSWORD`, and `UAH_ACCOUNT_ID`. With those variables set you can run the tool.
 
 ```
 ./undocumented-api-hunter.py --headless
