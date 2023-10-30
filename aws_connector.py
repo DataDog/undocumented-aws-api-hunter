@@ -165,6 +165,11 @@ def _integrate_models(parsed_model, existing_model):
             # This operation already exists, so let's integrate its parameters
             if 'input' in parsed_model['operations'][operation].keys() and 'members' in parsed_model['operations'][operation]['input'].keys():
                 for member in parsed_model['operations'][operation]['input']['members'].keys():
+                    # This accounts for a weird edge case when there is no `input` key
+                    if 'input' not in existing_model['operations'][operation].keys():
+                        existing_model['operations'][operation]['input'] = {}
+                        logging.info(f"{datetime.now()} INFO - Malformed model from AWS: {existing_model['metadata']['uid']}:{operation}")
+
                     if 'members' not in existing_model['operations'][operation]['input'].keys():
                         existing_model['operations'][operation]['input']['members'] = {}
 
