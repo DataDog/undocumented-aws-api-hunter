@@ -64,7 +64,7 @@ for service_name, service in extracted.items():
 undocumented_services_count = 0
 for service in extracted_services:
     if service not in botocore_services:
-        #print(service)
+        print(service)
         undocumented_services_count += 1
 print(f"Undocumented services: {undocumented_services_count}")
 
@@ -90,7 +90,7 @@ for service in extracted_services:
         continue
 
     if service not in botocore_services:
-        #print(service)
+        print(service)
         undocumented_service_versions_count += 1
 print(f"Undocumented service versions for documented services: {undocumented_service_versions_count}")
 
@@ -117,7 +117,7 @@ for service_name, operations in extracted_actions.items():
         if operation in botocore_actions[service_name].keys():
             continue
 
-        #print(f"{service_name}:{operation}")
+        print(f"{service_name}:{operation}")
         undocumented_actions_count += 1
 print(f"Undocumented actions for documented services: {undocumented_actions_count}")
 
@@ -203,7 +203,7 @@ for service_name, service in botocore_data.items():
             
         for param in extracted_params:
             if param not in botocore_params:
-                #print(f"{service_name}:{operation_name}:{param}")
+                print(f"{service_name}:{operation_name}:{param}")
                 undocumented_parameters_count += 1
 print(f"Undocumented parameters for documented actions: {undocumented_parameters_count}")
 
@@ -227,12 +227,12 @@ for service_uid, operations in extracted_actions.items():
         # This is an undocumented service, all its actions are fair game
         for operation in operations:
             undocumented_actions_count += 1
-            #print(f"{service_uid}:{operation}")
+            print(f"{service_uid}:{operation}")
         
     else:
         for operation in operations:
             if operation not in botocore_actions[service_uid].keys():
                 undocumented_actions_count += 1
-                #print(f"{service_uid}:{operation}")
+                print(f"{service_uid}:{operation}")
 
 print(f"Undocumented actions for documented/undocumented actions: {undocumented_actions_count}")
