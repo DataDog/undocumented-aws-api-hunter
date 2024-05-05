@@ -2,6 +2,8 @@
 
 import json, os
 
+"""This script will compare the botocore library to the collected dataset to find undocumented parameters"""
+
 BOTOCORE_MODELS = "./botocore/botocore/data"
 MODELS_DIR = "./models"
 botocore = {}
@@ -23,6 +25,7 @@ def find_shape(model, shape_name, previous_shape):
             if shape_name == model['shapes'][shape_name]['members'][member]['shape']:
                 continue
             flatlist += find_shape(model, model['shapes'][shape_name]['members'][member]['shape'], member)
+            flatlist.append(previous_shape)
     else:
         flatlist.append(previous_shape)
 
@@ -69,6 +72,10 @@ for model_name, model in botocore.items():
             continue
 
         botocore_params = find_shape(model, operation['input']['shape'], "")
+        # EC2 is annoying because it uses mixed case for the scraped model and 
+        # Camel case for the botocore library. As a safety precaution but 
+        # everything to lower
+        botocore_params = [x.lower() for x in botocore_params]
 
         if 'input' not in scraped_model['operations'][operation_name].keys():
             continue
@@ -76,5 +83,5 @@ for model_name, model in botocore.items():
             continue
 
         for param in scraped_model['operations'][operation_name]['input']['members'].keys():
-            if param not in botocore_params:
+            if param.lower() not in botocore_params:
                 print(f"Missing param: {model['metadata']['uid']}:{operation_name}:{param}")
