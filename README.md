@@ -4,6 +4,9 @@ A tool to uncover undocumented apis from the AWS Console.
 
 ## Docker Install/Usage
 
+> [!WARNING]
+> Because this tool uses [Selenium](https://www.selenium.dev/) and hence, [Google Chrome](https://www.google.com/chrome/), it is only functional from an x86-64 machine. It will **not** work on an M series Mac. Being in a Docker container does not change this. 
+
 ```
 git clone https://github.com/Frichetten/undocumented-api-hunter.git
 ```
