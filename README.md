@@ -27,6 +27,9 @@ docker run -it --rm -v ${PWD}/models:/app/models -v ${PWD}/logs:/app/logs --env-
 
 ## Manual Installation/Usage
 
+> [!IMPORTANT]  
+> This is only neccessary if you'd like to help with development of the project. If you just want to use it you would be much better served with the Docker option above. 
+
 ```
 git clone https://github.com/Frichetten/undocumented-api-hunter.git
 ```
