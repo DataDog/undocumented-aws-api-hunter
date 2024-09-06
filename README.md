@@ -67,3 +67,21 @@ Please create an IAM user in your account with console access. Then export the f
 ```
 ./undocumented-api-hunter.py --headless
 ```
+
+## Scripts (generate stats)
+
+Within this repo is a scripts directory which contains some scripts for generating stats on undocumented APIs. Each stat is split into its own section to make it easier to read. As a part of generating these stats there are some gotchas/limitations that are worth noting. They are described down below.
+
+### Undocumented parameters are only compared at top level
+
+In AWS API models, parameters for APIs are described as "shapes". These shapes are the format by which parameters are passed to the API. Shapes can be recursive, with one shape having multiple shapes within itself (they can even reference [themselves](https://github.com/boto/botocore/blob/bc89f1540e0cbb000561a72d20de9df0e92b9f4d/botocore/data/lexv2-runtime/2020-08-07/service-2.json#L532) which is fun to debug). When we compare these shapes between the botocore library and the extracted models we only compared shapes at the top level. This knowingly undercounts how many there are because down the chain there may be sub-shapes which have different fields. 
+
+This undercounting is intentional because properly evaluating this is a problem to be solved. The reson is that AWS' own models are not descriptive enough to acomplish this. As an example `lambda-2015-03-32:UpdateFunctionEventInvokeConfig` has the shape DestinationConfig, this has a sub-shape OnSuccess, which itself has a member for "[Destination](https://github.com/Frichetten/aws-api-models/blob/4bc7b764593d2c2b78e3f81ff8c7027bd7048e50/models/lambda-2015-03-31-rest-json.json#L4358)".
+
+In botocore all of this is still true, however it continues on. "Destination" has a sub-member for "[DestinationArn](https://github.com/boto/botocore/blob/0ac30565017f1486b2eebf9bd90b5411f0d7f1fb/botocore/data/lambda/2015-03-31/service-2.json#L4747)". 
+
+![fwdcloudsec EU 2024 - Hidden Among the Clouds_ A Look at Undocumented AWS APIs (1)](https://github.com/user-attachments/assets/fa24b438-4f82-4571-9eeb-e96b4c89eb37)
+
+It is not clear why the models are not the same. My working theory is that AWS uses a lot of code generation for it's models. As a result, models are often fragmented and don't always contain the full set. As a result, it's possible that we are not properly merging shapes and missing some parts of them. Regardless of the reason why, we are unable to further analyze shapes.
+
+If you find a way to reliably (emphasis) do this, please let me know. I would love to hear about it. For now, we are only comparing the top level parameters. This has the knock-on effect of reporting fewer undocumented parameters than there actually are.
