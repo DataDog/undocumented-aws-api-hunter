@@ -2,6 +2,10 @@
 
 A tool to uncover, extract, and monitor undocumented AWS APIs from the AWS console.
 
+## Table of Contents
+
+- [How does it work](#how-does-it-work)
+
 ## How does it work?
 
 The undocumented-api-hunter uses [Selenium](https://www.selenium.dev/) to pilot a headless instance of [Google Chrome](https://www.google.com/chrome/) and crawl the AWS console. It starts by signing into the console using an IAM user. Next, it will extract the service pages from the search bar of the console. It will then visit each of these pages and search the JavaScript being loaded on each page for AWS service models. Once it finds a model, it will store it.    
