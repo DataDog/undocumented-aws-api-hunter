@@ -21,4 +21,4 @@ RUN CHROMEDRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RE
 	chmod +x chromedriver && \
 	mv chromedriver /usr/bin/chromedriver
 
-CMD ["python", "./undocumented-api-hunter.py", "--headless"]
+CMD ["python", "./undocumented-aws-api-hunter.py", "--headless"]
