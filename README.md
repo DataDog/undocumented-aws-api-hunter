@@ -5,7 +5,8 @@ A tool to uncover, extract, and monitor undocumented AWS APIs from the AWS conso
 ## Table of Contents
 
 - [How does it work?](#how-does-it-work)
-- [Docker Install/Usage](#docker-installusage)
+- [Usage](#usage)
+- [How to Build Docker Container](#how-to-build-docker-container)
 - [Manual Installation/Usage](#manual-installationusage)
 - [Scripts (generate stats)](#scripts-generate-stats)
   - [Undocumented parameters are only compared at top level](#undocumented-parameters-are-only-compared-at-top-level)
@@ -22,7 +23,17 @@ undocumented-aws-api-hunter will deduplicate models and only store shapes, opera
 > [!WARNING]
 > From some nominal testing it appears that this tool works on M series Macs, however be aware that because this tool uses [Selenium](https://www.selenium.dev/) and hence, [Google Chrome](https://www.google.com/chrome/), there may be some funkyness on non-x86-64 machines. If you'd like to run this in production it would be best to do so on an x86 Linux machine. 
 
-## Docker Install/Usage
+## Usage
+
+Please create an IAM user in your account with console access. Then create a `.env` with the following environment variables with the associated info: `UAH_USERNAME`, `UAH_PASSWORD`, and `UAH_ACCOUNT_ID`. With those variables set you can run the tool. This user must **NOT** have any permissions. If they have any IAM policies granting permissions it runs the risk of the automation accidentally invoking something.
+
+Run the container with the following:
+
+```
+docker run -it --rm -v ${PWD}/models:/app/models -v ${PWD}/logs:/app/logs --env-file .env ghcr.io/datadog/undocumented-aws-api-hunter:latest
+```
+
+## How to Build Docker Container
 
 ```
 git clone https://github.com/DataDog/undocumented-aws-api-hunter.git
@@ -32,14 +43,6 @@ Build the Docker container:
 
 ```
 docker build -t undocumented-aws-api-hunter .
-```
-
-Please create an IAM user in your account with console access. Then create a `.env` with the following environment variables with the associated info: `UAH_USERNAME`, `UAH_PASSWORD`, and `UAH_ACCOUNT_ID`. With those variables set you can run the tool. This user must **NOT** have any permissions. If they have any IAM policies granting permissions it runs the risk of the automation accidentally invoking something.
-
-Run the container with the following:
-
-```
-docker run -it --rm -v ${PWD}/models:/app/models -v ${PWD}/logs:/app/logs --env-file .env undocumented-aws-api-hunter
 ```
 
 ## Manual Installation/Usage
