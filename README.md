@@ -4,7 +4,12 @@ A tool to uncover, extract, and monitor undocumented AWS APIs from the AWS conso
 
 ## Table of Contents
 
-- [How does it work](#how-does-it-work)
+- [How does it work?](#how-does-it-work)
+- [Docker Install/Usage](#docker-installusage)
+- [Manual Installation/Usage](#manual-installationusage)
+- [Scripts (generate stats)](#scripts-generate-stats)
+  - [Undocumented parameters are only compared at top level](#undocumented-parameters-are-only-compared-at-top-level)
+- [Author](#author)
 
 ## How does it work?
 
@@ -89,3 +94,7 @@ In botocore all of this is still true, however it continues on. "Destination" ha
 It is not clear why the models are not the same. My working theory is that AWS uses a lot of code generation for it's models. As a result, models are often fragmented and don't always contain the full set. As a result, it's possible that we are not properly merging shapes and missing some parts of them. Regardless of the reason why, we are unable to further analyze shapes.
 
 If you find a way to reliably (emphasis) do this, please let me know. I would love to hear about it. For now, we are only comparing the top level parameters. This has the knock-on effect of reporting fewer undocumented parameters than there actually are.
+
+## Author
+
+This tool was written by [Nick Frichette](https://frichetten.com/) in his free time. To find more of his research on AWS, please see [Datadog Security Labs](https://securitylabs.datadoghq.com/).
