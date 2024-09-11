@@ -98,3 +98,4 @@ If you find a way to reliably (emphasis) do this, please let me know. I would lo
 ## Author
 
 This tool was written by [Nick Frichette](https://frichetten.com/) in his free time. To find more of his research on AWS, please see [Datadog Security Labs](https://securitylabs.datadoghq.com/).
+
