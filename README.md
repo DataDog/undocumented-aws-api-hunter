@@ -1,11 +1,12 @@
 # undocumented-aws-api-hunter
 
-A tool to uncover, extract, and monitor undocumented AWS APIs from the AWS console.
+A tool to uncover, extract, and monitor undocumented AWS APIs from the AWS console. This tool was released at the the [fwd:cloudsec EU](https://fwdcloudsec.org/conference/europe/) talk, "[Hidden Among the Clouds: A Look at Undocumented AWS APIs](https://docs.google.com/presentation/d/1jJM_9KPfYZL60B56MQwQTym1H_A63abz2t_p_8Vo8MU/edit?usp=sharing)". This research has already uncovered some useful [tradecraft](https://frichetten.com/blog/undocumented-amplify-api-leak-account-id/), and even two [cross-tenant vulnerabilities](https://frichetten.com/blog/minor-cross-tenant-vulns-app-runner/), however due to the shear volume of undocumented APIs found there are likely many more. 
 
 ## Table of Contents
 
 - [How does it work?](#how-does-it-work)
 - [Usage](#usage)
+- [Output](#output)
 - [How to Build Docker Container](#how-to-build-docker-container)
 - [Manual Installation/Usage](#manual-installationusage)
 - [Scripts (generate stats)](#scripts-generate-stats)
@@ -32,6 +33,14 @@ Run the container with the following:
 ```
 docker run -it --rm -v ${PWD}/models:/app/models -v ${PWD}/logs:/app/logs --env-file .env ghcr.io/datadog/undocumented-aws-api-hunter:latest
 ```
+
+## Output
+
+When running this tool a number of artifacts are created, including:
+
+- Models: Models are output to `/models`. Each subsequent run of the tool should use the same model directory as the tool will deduplicate based on previous findings.
+- Logs: Logs are output to `/logs/application.log`. This includes a running output of models, operations, and parameters found. This is particularly useful to monitor for new findings.
+- Endpoints: AWS will often store endpoints in the HTML (yes, that is correct) of pages in the console. This tool will extract those and store them in a file called `endpoints.txt`. This can be useful for finding API endpoints for these undocumented APIs, however it is important to stress that this is not ALL endpoints. It may return a few hundred (when tens of thousands or more exist). If you're interested in finding more API endpoints, [this](https://securitylabs.datadoghq.com/articles/non-production-endpoints-as-an-attack-surface-in-aws/) method is recommended.
 
 ## How to Build Docker Container
 
