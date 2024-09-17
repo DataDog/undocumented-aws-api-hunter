@@ -19,7 +19,9 @@ The undocumented-aws-api-hunter uses [Selenium](https://www.selenium.dev/) to pi
 
 ![364505916-476d7532-a6e4-491a-843c-33704819135b](https://github.com/user-attachments/assets/8133dd16-b41d-4610-a2c2-4ee3d9f9ab04)
 
-undocumented-aws-api-hunter will deduplicate models and only store shapes, operations, and other information that is net-new. Subsequent runs of the undocumented API hunter can add new data to the extracted models. For an example extracted dataset, please see [here](https://github.com/frichetten/aws-api-models).
+the undocumented-aws-api-hunter will deduplicate models and only store shapes, operations, and other information that is net-new. Subsequent runs of the undocumented API hunter can add new data to the extracted models. The tool will also mark the location (`download_location`) where a model or operation was downloaded from. This provides transparency and evidence of where models were found. 
+
+For an example extracted dataset, please see [here](https://github.com/frichetten/aws-api-models).
 
 > [!WARNING]
 > From some nominal testing it appears that this tool works on M series Macs, however be aware that because this tool uses [Selenium](https://www.selenium.dev/) and hence, [Google Chrome](https://www.google.com/chrome/), there may be some funkyness on non-x86-64 machines. If you'd like to run this in production it would be best to do so on an x86 Linux machine. 
