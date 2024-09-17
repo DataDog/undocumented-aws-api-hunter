@@ -17,7 +17,7 @@ A tool to uncover, extract, and monitor undocumented AWS APIs from the AWS conso
 
 The undocumented-aws-api-hunter uses [Selenium](https://www.selenium.dev/) to pilot a headless instance of [Google Chrome](https://www.google.com/chrome/) and crawl the AWS console. It starts by signing into the console using an IAM user. Next, it will extract the service pages from the search bar of the console. It will then visit each of these pages and search the JavaScript being loaded on each page for AWS service models. Once it finds a model, it will store it.    
 
-![fwdcloudsec EU 2024 - Hidden Among the Clouds_ A Look at Undocumented AWS APIs](https://github.com/user-attachments/assets/476d7532-a6e4-491a-843c-33704819135b)
+![364505916-476d7532-a6e4-491a-843c-33704819135b](https://github.com/user-attachments/assets/8133dd16-b41d-4610-a2c2-4ee3d9f9ab04)
 
 undocumented-aws-api-hunter will deduplicate models and only store shapes, operations, and other information that is net-new. Subsequent runs of the undocumented API hunter can add new data to the extracted models. For an example extracted dataset, please see [here](https://github.com/frichetten/aws-api-models).
 
@@ -101,7 +101,7 @@ This undercounting is intentional because properly evaluating this is a problem 
 
 In botocore all of this is still true, however it continues on. "Destination" has a sub-member for "[DestinationArn](https://github.com/boto/botocore/blob/0ac30565017f1486b2eebf9bd90b5411f0d7f1fb/botocore/data/lambda/2015-03-31/service-2.json#L4747)". 
 
-![fwdcloudsec EU 2024 - Hidden Among the Clouds_ A Look at Undocumented AWS APIs (1)](https://github.com/user-attachments/assets/fa24b438-4f82-4571-9eeb-e96b4c89eb37)
+![365281205-fa24b438-4f82-4571-9eeb-e96b4c89eb37](https://github.com/user-attachments/assets/ac98506a-38b2-49c8-af12-d2aa62774267)
 
 It is not clear why the models are not the same. My working theory is that AWS uses a lot of code generation for it's models. As a result, models are often fragmented and don't always contain the full set. As a result, it's possible that we are not properly merging shapes and missing some parts of them. Regardless of the reason why, we are unable to further analyze shapes.
 
