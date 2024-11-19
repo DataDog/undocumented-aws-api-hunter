@@ -99,9 +99,6 @@ def initialize(args):
     logging.getLogger('chardet.charsetprober').setLevel(logging.CRITICAL)
     logging.getLogger('chardet.universaldetector').setLevel(logging.CRITICAL)
 
-    timestamp = datetime.datetime.now() 
-    logging.info(f"{datetime.datetime.now()} INFO - Starting new run at {timestamp.strftime('%m/%d/%Y %H:%M:%S')}")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Find this pesky undocumented AWS APIs with the AWS Console")
@@ -115,4 +112,10 @@ if __name__ == "__main__":
 
     initialize(args)
 
+    timestamp = datetime.datetime.now() 
+    logging.info(f"{datetime.datetime.now()} INFO - Starting new run at {timestamp.strftime('%m/%d/%Y %H:%M:%S')}")
+
     main(args)
+
+    timestamp = datetime.datetime.now()
+    logging.info(f"{datetime.datetime.now()} INFO - Finished run at {timestamp.strftime('%m/%d/%Y %H:%M:%S')}")
