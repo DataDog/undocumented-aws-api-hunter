@@ -24,7 +24,7 @@ RUN CHROMEDRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RE
 	mv chromedriver /usr/bin/chromedriver
 
 RUN useradd -m -u 1000 user
-RUN chmod -R 755 /app
+RUN chown -R 1000:1000 /app
 
 USER user
 
