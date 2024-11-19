@@ -11,6 +11,7 @@ import aws_connector
 
 MODEL_DIR = "./models"
 LOG_DIR = "./logs"
+ENDPOINTS_DIR = "./endpoints"
 
 
 def main(args):
@@ -46,14 +47,14 @@ def main(args):
                 aws_connector.parse_service_model(js_content, script, True, MODEL_DIR)
                 queried_javascript.add(script)
     
-    with open("./endpoints.txt", 'w') as w:
+    with open(f"{ENDPOINTS_DIR}/endpoints.txt", 'w') as w:
         for item in endpoints:
             w.write(f"{item}\n")
 
 
 def load_endpoints():
     to_return = set()
-    with open("./endpoints.txt", 'r') as r:
+    with open(f"{ENDPOINTS_DIR}/endpoints.txt", 'r') as r:
         for url in r:
             to_return.add(url.strip())
     return to_return
@@ -63,10 +64,12 @@ def initialize(args):
     # Check for a local models directory
     if not os.path.isdir(MODEL_DIR):
         os.mkdir(MODEL_DIR)
-    if not os.path.isdir("./incomplete"):
-        os.mkdir("./incomplete")
-    if not os.path.isfile("./endpoints.txt"):
-        open("./endpoints.txt", 'w').close()
+    #if not os.path.isdir("./incomplete"):
+    #    os.mkdir("./incomplete")
+    if not os.path.isdir(ENDPOINTS_DIR):
+        os.mkdir(ENDPOINTS_DIR)
+    if not os.path.isfile(f"{ENDPOINTS_DIR}/endpoints.txt"):
+        open(f"{ENDPOINTS_DIR}/endpoints.txt", 'w').close()
 
     # Check needed environment variables
     env_vars = ["UAH_ACCOUNT_ID", "UAH_USERNAME", "UAH_PASSWORD"]

@@ -23,4 +23,8 @@ RUN CHROMEDRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RE
 	chmod +x chromedriver && \
 	mv chromedriver /usr/bin/chromedriver
 
+RUN useradd -m -u 1000 user
+
+USER user
+
 CMD ["python", "./undocumented-aws-api-hunter.py", "--headless"]

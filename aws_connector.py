@@ -36,7 +36,7 @@ def parse_service_model(js_content, download_location, save, MODEL_DIR):
                 logging.info(f"{datetime.now()} ERROR - No UID found - unnamed")
                 filename = "".join([item for item in parsed_model['metadata'].values() if type(item) is str])
             #_mark_download_location(parsed_model, download_location)
-            _dump_to_file(parsed_model, filename, './incomplete') 
+            #_dump_to_file(parsed_model, filename, './incomplete') 
             continue
         
         if not save:
